@@ -1,6 +1,8 @@
 package com.example.zeningzhang.client;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -29,6 +31,7 @@ public class HomeActivity extends AppCompatActivity
         implements FirstFragment.OnFragmentInteractionListener, SecondFragment.OnFragmentInteractionListener,NavigationView.OnNavigationItemSelectedListener {
 
     private String userName;
+    public static final String PREFS_NAME = "LoginPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +49,10 @@ public class HomeActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Bundle bundle = this.getIntent().getExtras();
-        userName = bundle.getString("username");
+//        Bundle bundle = this.getIntent().getExtras();
+//        userName = bundle.getString("username");
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        userName = settings.getString("username",null);
         Fragment fragment = null;
         Class fragmentClass;
         fragmentClass = FirstFragment.class;
@@ -97,11 +102,31 @@ public class HomeActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.remove("logged");
+            editor.commit();
+            Log.d("zznmizzou", "Now log out and start the activity login");
+            Intent intent = new Intent(HomeActivity.this,
+                    LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+            finish();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void setLoginState(boolean status) {
+        SharedPreferences sp = getSharedPreferences("LoginState",
+                MODE_PRIVATE);
+        SharedPreferences.Editor ed = sp.edit();
+        ed.putBoolean("setLoggingOut", status);
+        ed.commit();
+    }
+
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override

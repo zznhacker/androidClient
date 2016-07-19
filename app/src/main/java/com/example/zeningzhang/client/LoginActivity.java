@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -69,12 +70,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    public static final String PREFS_NAME = "LoginPrefs";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        // Set up the login form.
+
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        if (settings.getString("logged", "").toString().equals("logged")) {
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+
+        }
+
+            // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
 
@@ -124,6 +135,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+
+
+
+
 
 
 
@@ -409,13 +425,20 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     case "login":
                     {
                         ComponentName componentName = new ComponentName(LoginActivity.this,HomeActivity.class);
-                        Intent intent = new Intent();
-                        Bundle bundle=new Bundle();
+                        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+                        SharedPreferences.Editor editor = settings.edit();
+                        editor.putString("logged", "logged");
+                        editor.putString("username", mEmail);
+                        editor.commit();
 
-                        bundle.putString("username", mEmail);
-                        intent.putExtras(bundle);
+                        Intent intent = new Intent();
+//                        Bundle bundle=new Bundle();
+//
+//                        bundle.putString("username", mEmail);
+//                        intent.putExtras(bundle);
                         intent.setComponent(componentName);
                         startActivity(intent);
+                        finish();
                         break;
                     }
                     case "register":
