@@ -2,6 +2,8 @@ package com.example.zeningzhang.client;
 
 import android.util.Log;
 
+import org.apache.commons.codec.digest.DigestUtils;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -54,12 +56,15 @@ public class PasswordHash
         random.nextBytes(salt);
         // Hash the password
         byte[] pass = password.toString().getBytes();
+        Log.d("zznmizzou", String.valueOf(pass));
+
+
         // format iterations:salt:hash
-        String result = toSHA256(salt).toString() + ":" +  toSHA256(pass).toString();
+        String result = byteArrayToString(DigestUtils.sha1(salt)) + ":" +  byteArrayToString(DigestUtils.sha1(pass));
         String[] results = new String[2];
         results[0] = result;
-        results[1] = salt.toString();
-        Log.d("zznmizzou",results.toString());
+        results[1] = byteArrayToString(salt);
+        Log.d("zznmizzou",results[0]+" and "+results[1]);
         return results;
     }
 
@@ -156,16 +161,29 @@ public class PasswordHash
      * @return              a length*2 character string encoding the byte array
      */
     private static byte[] toSHA256(byte[] array) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
         byte[] hash;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+
             hash = digest.digest(array);
+
         }
         else{
             hash = new byte[4096];
         }
         return hash;
     }
+    private static String byteArrayToString(byte[] byteData)
+    {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        return sb.toString();
+
+    }
+
 
 
 //    public static void main(String[] args)

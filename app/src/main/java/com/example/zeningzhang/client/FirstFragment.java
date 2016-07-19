@@ -7,12 +7,19 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -35,6 +42,7 @@ public class FirstFragment extends Fragment {
     private List<TradingItems> itemList = new ArrayList<>();
     private RecyclerView recyclerView;
     private ItemAdapter mAdapter;
+    private JSONObject listOfItem;
 
 
     private OnFragmentInteractionListener mListener;
@@ -68,28 +76,31 @@ public class FirstFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-
-
-
     }
 
-    private void prepareMovieData() {
-        TradingItems item = new TradingItems("google","Internet","2015");
-        itemList.add(item);
-
-        item = new TradingItems("apple","Internet","2015");
-        itemList.add(item);
-
-        item = new TradingItems("Amazon","Internet","2015");
-        itemList.add(item);
-
-        item = new TradingItems("Facebook","Internet","2015");
-        itemList.add(item);
-
-
-        item = new TradingItems("Hulu","Internet","2015");
-        itemList.add(item);
+    private void prepareMovieData(JSONObject listOfItem) throws JSONException {
+        for(int i=0;i<listOfItem.getJSONArray("items").length();i++)
+        {
+            JSONObject obj = (JSONObject) listOfItem.getJSONArray("items").get(i);
+            Log.d("zznmizzouItem",obj.get("itemName").toString());
+            TradingItems item = new TradingItems(obj.get("itemName").toString(),obj.get("itemType").toString(),obj.get("itemDate").toString());
+            itemList.add(item);
+        }
+//        TradingItems item = new TradingItems("google","Internet","2015");
+//        itemList.add(item);
+//
+//        item = new TradingItems("apple","Internet","2015");
+//        itemList.add(item);
+//
+//        item = new TradingItems("Amazon","Internet","2015");
+//        itemList.add(item);
+//
+//        item = new TradingItems("Facebook","Internet","2015");
+//        itemList.add(item);
+//
+//
+//        item = new TradingItems("Hulu","Internet","2015");
+//        itemList.add(item);
 
         mAdapter.notifyDataSetChanged();
 
@@ -125,7 +136,31 @@ public class FirstFragment extends Fragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
 
-        prepareMovieData();
+        Map<String,String> map = new HashMap<>();
+        map.put("status","viewItem");
+
+        String url = HttpUtil.BASE_URL;
+        try {
+            String temp = HttpUtil.postRequest(url,map);
+            Log.d("zznmizzou",temp);
+            listOfItem = new JSONObject(temp);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if(listOfItem!=null)
+        {
+            try {
+                prepareMovieData(listOfItem);
+                Log.d("zznmizzou",listOfItem.getJSONArray("items").toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+        }
+
     }
 
     @Override

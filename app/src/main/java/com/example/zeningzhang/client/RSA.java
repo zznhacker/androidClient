@@ -60,10 +60,9 @@ public class RSA {
                 Map.Entry entry = (Map.Entry) iter.next();
                 Object key = entry.getKey();
                 Object val = entry.getValue();
-                if(key.toString().equals("password"))
+                if(key.toString().equals("passwordCurrentNotUse"))
                 {
                     String[] res = PasswordHash.createHash(val.toString());
-
                     jsonObject.put("password",res[0]);
                     jsonObject.put("salt",res[1]);
                 }

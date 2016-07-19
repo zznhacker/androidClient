@@ -2,13 +2,11 @@ package com.example.zeningzhang.client;
 
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +29,6 @@ public class HomeActivity extends AppCompatActivity
         implements FirstFragment.OnFragmentInteractionListener, SecondFragment.OnFragmentInteractionListener,NavigationView.OnNavigationItemSelectedListener {
 
     private String userName;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,22 +157,13 @@ public class HomeActivity extends AppCompatActivity
         // setup a dialog window
         alertDialogBuilder.setCancelable(false)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+
                     public void onClick(DialogInterface dialog, int id) {
                         //save into db
-                        Map<String,String> map = new HashMap<>();
-                        map.put("itemName",editName.getText().toString());
-                        map.put("itemType",editType.getText().toString());
-                        map.put("itemDate",editDate.getText().toString());
-                        map.put("username",userName);
-                        map.put("status","itemInput");
+                        AddItemTask addItemTask = new AddItemTask(editDate.getText().toString(),editType.getText().toString(),editName.getText().toString(),userName,"itemInput");
+                        addItemTask.execute((Void)null);
 
-                        String url = HttpUtil.BASE_URL;
-                        try {
-                            String temp = HttpUtil.postRequest(url,map);
-                            Log.d("zznmizzou",temp);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
                     }
                 })
                 .setNegativeButton("Cancel",
@@ -189,5 +176,78 @@ public class HomeActivity extends AppCompatActivity
         // create an alert dialog
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
+    }
+
+    public class AddItemTask extends AsyncTask<Void, Void, Boolean>
+    {
+        private String itemDate;
+        private String itemType;
+        private String itemName;
+        private String userName;
+        private String status;
+
+
+
+        public AddItemTask(String itemDate, String itemType, String itemName, String userName, String status) {
+            this.itemDate = itemDate;
+            this.itemType = itemType;
+            this.itemName = itemName;
+            this.userName = userName;
+            this.status = status;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            if(aBoolean)
+            {
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                Fragment fragment = null;
+                try {
+                    fragment = (Fragment) FirstFragment.class.newInstance();
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                fragmentManager.beginTransaction().replace(R.id.flContent,fragment).commit();
+
+
+                DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+                drawer.closeDrawer(GravityCompat.START);
+            }
+            else{
+
+            }
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            Map<String,String> encrypted = new HashMap<>();
+            encrypted.put("itemName",itemName);
+            encrypted.put("itemType",itemType);
+            encrypted.put("itemDate",itemDate);
+            Map<String,String> map = new HashMap<>();
+            try {
+                String info = RSA.runRSA(encrypted,"saveItems");
+//                            map.put("itemName",editName.getText().toString());
+//                            map.put("itemType",editType.getText().toString());
+//                            map.put("itemDate",editDate.getText().toString());
+                map.put("info",info);
+                map.put("username",userName);
+                map.put("status","itemInput");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            String url = HttpUtil.BASE_URL;
+            try {
+                String temp = HttpUtil.postRequest(url,map);
+                Log.d("zznmizzou",temp);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            return true;
+        }
     }
 }
