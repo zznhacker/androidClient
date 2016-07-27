@@ -6,6 +6,7 @@ package com.example.zeningzhang.client;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -28,6 +30,7 @@ import org.json.JSONException;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Handler;
 
 
 public class UploadActivity extends Activity {
@@ -81,11 +84,25 @@ public class UploadActivity extends Activity {
             @Override
             public void onClick(View v) {
                 // uploading the file to server
-                new UploadFileToServer().execute();
+                UploadFileToServer uploadFileToServer = new UploadFileToServer();
+                new Thread(uploadFileToServer).start();
             }
         });
 
     }
+
+
+
+    android.os.Handler handler = new android.os.Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            String val = data.getString("message");
+            showAlert(val);
+        }
+    };
+
 
     /**
      * Displaying captured image/video on the screen
@@ -119,44 +136,47 @@ public class UploadActivity extends Activity {
     /**
      * Uploading the file to server
      * */
-    private class UploadFileToServer extends AsyncTask<Void, Integer, String> {
-        @Override
-        protected void onPreExecute() {
-            // setting progress bar to zero
-            progressBar.setProgress(0);
+    private class UploadFileToServer implements Runnable {
+//        @Override
+//        protected void onPreExecute() {
+//            // setting progress bar to zero
+//            progressBar.setProgress(0);
+//
+//            super.onPreExecute();
+//        }
 
-            super.onPreExecute();
+//        @Override
+//        protected void onProgressUpdate(Integer... progress) {
+//            // Making progress bar visible
+//            progressBar.setVisibility(View.VISIBLE);
+//
+//            // updating progress bar value
+//            progressBar.setProgress(progress[0]);
+//
+//            // updating percentage value
+//            txtPercentage.setText(String.valueOf(progress[0]) + "%");
+//        }
+        @Override
+        public void run() {
+            String mess= uploadFile();
+            Message msgMessage=new Message();
+            msgMessage.arg1=1;
+            Bundle bundle = new Bundle();
+            bundle.putString("message",mess);
+            msgMessage.setData(bundle);
+            handler.sendMessage(msgMessage);
         }
 
-        @Override
-        protected void onProgressUpdate(Integer... progress) {
-            // Making progress bar visible
-            progressBar.setVisibility(View.VISIBLE);
 
-            // updating progress bar value
-            progressBar.setProgress(progress[0]);
-
-            // updating percentage value
-            txtPercentage.setText(String.valueOf(progress[0]) + "%");
-        }
-
-        @Override
-        protected String doInBackground(Void... params) {
-            return uploadFile();
-        }
-
-        @SuppressWarnings("deprecation")
         private String uploadFile() {
             String responseString = null;
             Log.d("zznmizzou","here i am");
             String charset = "UTF-8";
             File uploadFile1 = new File(filePath);
-            String requestURL = "http://123.207.231.67/upload/";
-
+            String requestURL =Config.FILE_UPLOAD_URL;
 
             try {
                     MultipartUtility multipart = new MultipartUtility(requestURL, charset);
-
 //                    multipart.addHeaderField("User-Agent", "CodeJava");
 //                    multipart.addHeaderField("Test-Header", "Header-Value");\
 //                    multipart.addFormField("status", "imageUpload");
@@ -166,15 +186,19 @@ public class UploadActivity extends Activity {
                 try {
                     multipart.addFilePart(filePath, uploadFile1);
                     multipart.addFormField("status", "imageUpload");
+                    multipart.addFormField("fileName", uploadFile1.getName());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 Log.d("zznmizzou","file upload");
 
-                    List<String> response = multipart.finish();
-
-
-                    Log.d("zznmizzou","SERVER REPLIED:");
+                List<String> response = null;
+                try {
+                    response = multipart.finish();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                Log.d("zznmizzou","SERVER REPLIED:");
 
 
                     for (String line : response) {
@@ -185,25 +209,20 @@ public class UploadActivity extends Activity {
                 Log.d("zznmizzou",ex.toString());
                     System.err.println(ex);
                 }
-
-
-
-
-
-
             return responseString;
 
         }
 
-        @Override
-        protected void onPostExecute(String result) {
-            Log.e(TAG, "Response from server: " + result);
 
-            // showing the server response in an alert dialog
-            showAlert(result);
-
-            super.onPostExecute(result);
-        }
+//        @Override
+//        protected void onPostExecute(String result) {
+//            Log.e(TAG, "Response from server: " + result);
+//
+//            // showing the server response in an alert dialog
+//            showAlert(result);
+//
+//            super.onPostExecute(result);
+//        }
 
     }
 

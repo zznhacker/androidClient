@@ -83,14 +83,6 @@ public class MultipartUtility {
           */
                 public void addFormField(String name, String value) throws JSONException {
                   jsonObject.put(name,value);
-//                writer.append("--" + boundary).append(LINE_FEED);
-//                writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
-//                        .append(LINE_FEED);
-//                writer.append("Content-Type: text/plain; charset=" + charset).append(
-//                                LINE_FEED);
-//                writer.append(LINE_FEED);
-//                writer.append(value).append(LINE_FEED);
-//                writer.flush();
             }
      
                 /**
@@ -109,50 +101,17 @@ public class MultipartUtility {
                     Log.d("zznmizzou",fieldName+" and "+fileName);
                     Bitmap image = BitmapFactory.decodeFile(fieldName);
 
-
                     image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
                     byte[] byteArrayImage = baos.toByteArray();
-                    Log.d("zznmizzou",byteArrayImage.toString());
                     String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-                    jsonObject.put("file",encodedImage);
+                    try {
+                        jsonObject.put("file",encodedImage).wait(3000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
 
-//                    writer.append("file"+':'+'"');
-//                    writer.flush();
-//
+                }
 
-//                writer.append("--" + boundary).append(LINE_FEED);
-//                writer.append("Content-Disposition: form-data; name=\"" + fieldName
-//                                        + "\"; filename=\"" + fileName + "\"")
-//                        .append(LINE_FEED);
-//                writer.append("Content-Type: "
-//                                        + URLConnection.guessContentTypeFromName(fileName))
-//                        .append(LINE_FEED);
-//                writer.append("Content-Transfer-Encoding: binary").append(LINE_FEED);
-//                writer.append(LINE_FEED);
-//                writer.flush();
-         
-//                FileInputStream inputStream = new FileInputStream(uploadFile);
-//                byte[] buffer = new byte[8194];
-//                int bytesRead = -1;
-//                while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                        outputStream.write(buffer, 0, bytesRead);
-//                    }
-//                outputStream.flush();
-//                inputStream.close();
-//                 writer.append('"'+",");
-//                writer.append(LINE_FEED);
-//                writer.flush();
-            }
-     
-                /**
-          * Adds a header field to the request.
-          * @param name - name of the header field
-          * @param value - value of the header field
-          */
-                public void addHeaderField(String name, String value) {
-//                writer.append(name + ": " + value).append(LINE_FEED);
-                writer.flush();
-            }
          
                 /**
           * Completes the request and receives response from the server.
@@ -160,17 +119,12 @@ public class MultipartUtility {
           * status OK, otherwise an exception is thrown.
           * @throws IOException
           */
-                public List<String> finish() throws IOException {
+                public List<String> finish() throws IOException, JSONException {
                 List<String> response = new ArrayList<String>();
-                    writer.write(jsonObject.toString());
-                    writer.flush();
-                    Log.d("zznmizzou",jsonObject.toString());
-//
-//                writer.append(LINE_FEED).flush();
-//                writer.append("--" + boundary + "--").append(LINE_FEED);
-//                writer.close();
-         
-                // checks server's status code first
+                Log.d("zznmizzouJSON",jsonObject.get("file").toString());
+
+                writer.write(jsonObject.toString());
+                writer.flush();
                 int status = httpConn.getResponseCode();
                 if (status == HttpURLConnection.HTTP_OK) {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(
