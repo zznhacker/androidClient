@@ -18,6 +18,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 public class PasswordHash
 {
+
     public static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
 
     // The following constants may be changed without breaking existing hashes.

@@ -4,7 +4,12 @@ android {
     compileSdkVersion 24
     buildToolsVersion "24.0.0"
 
-    defaultConfig {
+    packagingOptions {
+        exclude "META-INF/DEPENDENCIES"
+
+    }
+
+        defaultConfig {
         applicationId "com.example.zeningzhang.client"
         minSdkVersion 15
         targetSdkVersion 24
@@ -22,13 +27,16 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
-    compile files('libs/commons-codec-1.10.jar')
     compile files('libs/sun.misc.BASE64Decoder.jar')
     compile 'com.android.support:appcompat-v7:24.0.0'
     compile 'com.android.support:design:24.0.0'
-    compile 'org.jbundle.util.osgi.wrapped:org.jbundle.util.osgi.wrapped.org.apache.http.client:4.1.2'
     compile 'com.android.support:support-v4:24.0.0'
+    compile files('libs/org.jbundle.util.osgi.wrapped.org.apache.http.client-4.1.2.jar')
+    compile 'org.apache.httpcomponents:httpmime:4.5.2'
+    compile 'org.apache.directory.studio:org.apache.commons.codec:1.8'
+
 }
+
 
 
 

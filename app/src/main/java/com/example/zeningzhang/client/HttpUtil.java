@@ -26,7 +26,7 @@ import java.util.concurrent.FutureTask;
  */
 public class HttpUtil {
     private static HttpClient httpClient = new DefaultHttpClient();
-    public static final String BASE_URL = "http://10.0.2.2:3000";
+    public static final String BASE_URL = "http://123.207.231.67";
 
     public static String getRequest(final String url) throws ExecutionException, InterruptedException {
         FutureTask<String> task = new FutureTask<String>(new Callable<String>() {
@@ -63,7 +63,6 @@ public class HttpUtil {
 
                 if(httpResponse.getStatusLine().getStatusCode()==200)
                 {
-
                     String result = EntityUtils.toString(httpResponse.getEntity());
                     Log.d("zznmizzou","after");
                     return result;

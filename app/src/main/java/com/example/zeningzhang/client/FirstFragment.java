@@ -142,7 +142,7 @@ public class FirstFragment extends Fragment {
         String url = HttpUtil.BASE_URL;
         try {
             String temp = HttpUtil.postRequest(url,map);
-            Log.d("zznmizzou",temp);
+//            Log.d("zznmizzou",temp);
             listOfItem = new JSONObject(temp);
 
 

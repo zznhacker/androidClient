@@ -28,7 +28,7 @@ import java.util.Map;
 
 
 public class HomeActivity extends AppCompatActivity
-        implements FirstFragment.OnFragmentInteractionListener, SecondFragment.OnFragmentInteractionListener,NavigationView.OnNavigationItemSelectedListener {
+        implements FirstFragment.OnFragmentInteractionListener, SecondFragment.OnFragmentInteractionListener,ThirdFragment.OnFragmentInteractionListener,NavigationView.OnNavigationItemSelectedListener {
 
     private String userName;
     public static final String PREFS_NAME = "LoginPrefs";
@@ -36,6 +36,7 @@ public class HomeActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_home);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -107,6 +108,7 @@ public class HomeActivity extends AppCompatActivity
             SharedPreferences.Editor editor = settings.edit();
             editor.remove("logged");
             editor.commit();
+
             Log.d("zznmizzou", "Now log out and start the activity login");
             Intent intent = new Intent(HomeActivity.this,
                     LoginActivity.class);
@@ -119,13 +121,6 @@ public class HomeActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void setLoginState(boolean status) {
-        SharedPreferences sp = getSharedPreferences("LoginState",
-                MODE_PRIVATE);
-        SharedPreferences.Editor ed = sp.edit();
-        ed.putBoolean("setLoggingOut", status);
-        ed.commit();
-    }
 
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -138,11 +133,12 @@ public class HomeActivity extends AppCompatActivity
 
         if (id == R.id.icon1) {
             fragmentClass = FirstFragment.class;
-            Log.d("zznmizzou","first clicked");
 
         } else if (id == R.id.icon2) {
             showInputDialog();
             return true;
+        } else if (id == R.id.icon3) {
+            fragmentClass = ThirdFragment.class;
         }
         else
         {
