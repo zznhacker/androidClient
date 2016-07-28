@@ -99,6 +99,7 @@ public class UploadActivity extends Activity {
             super.handleMessage(msg);
             Bundle data = msg.getData();
             String val = data.getString("message");
+            Log.d("zznmizzou",val);
             showAlert(val);
         }
     };
@@ -185,8 +186,8 @@ public class UploadActivity extends Activity {
 //                    Log.d("zznmizzou",uploadFile1.);
                 try {
                     multipart.addFilePart(filePath, uploadFile1);
-                    multipart.addFormField("status", "imageUpload");
-                    multipart.addFormField("fileName", uploadFile1.getName());
+//                    multipart.addFormField("status", "imageUpload");
+//                    multipart.addFormField("fileName", uploadFile1.getName());
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

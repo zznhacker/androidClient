@@ -52,23 +52,18 @@ public class MultipartUtility {
                 throws IOException {
                     this.charset = charset;
                     jsonObject = new JSONObject();
-
                     // creates a unique boundary based on time stamp
 //                    boundary = "===" + System.currentTimeMillis() + "===";
-
                     URL url = new URL(requestURL);
                     httpConn = (HttpURLConnection) url.openConnection();
                     httpConn.setUseCaches(false);
                     httpConn.setRequestMethod("POST");
                     httpConn.setDoOutput(true); // indicates POST method
                     httpConn.setDoInput(true);
-
                     httpConn.setRequestProperty("Connection", "Keep-Alive");
+                    httpConn.setRequestProperty("status", "upload");
+                    httpConn.setRequestProperty("Content-Type", "image/jpeg");
                     httpConn.setRequestProperty("Cache-Control", "no-cache");
-
-
-                httpConn.setRequestProperty("Content-Type",
-                                "application/json");
 //                httpConn.setRequestProperty("User-Agent", "CodeJava Agent");
 //                httpConn.setRequestProperty("Test", "Bonjour");
                 outputStream = httpConn.getOutputStream();
@@ -93,22 +88,19 @@ public class MultipartUtility {
           */
                 public void addFilePart(String fieldName, File uploadFile)
                         throws IOException, JSONException {
-                    String fileName = uploadFile.getName();
-                    File imgPath = new File(fileName);
-
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-                    Log.d("zznmizzou",fieldName+" and "+fileName);
                     Bitmap image = BitmapFactory.decodeFile(fieldName);
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+                    outputStream.flush();
+                    outputStream.close();
 
-                    image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                    byte[] byteArrayImage = baos.toByteArray();
-                    String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-                    try {
-                        jsonObject.put("file",encodedImage).wait(3000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+
+//                    Log.d("zznmizzou",fieldName+" and "+fileName);
+//                    Bitmap image = BitmapFactory.decodeFile(fieldName);
+//
+//                    image.compress(Bitmap.CompressFormat.JPEG, 0, baos);
+//                    byte[] byteArrayImage = baos.toByteArray();
+//                    String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+//                    jsonObject.put("file",encodedImage);
 
                 }
 
@@ -121,10 +113,10 @@ public class MultipartUtility {
           */
                 public List<String> finish() throws IOException, JSONException {
                 List<String> response = new ArrayList<String>();
-                Log.d("zznmizzouJSON",jsonObject.get("file").toString());
+//                Log.d("zznmizzouJSON",jsonObject.get("file").toString());
 
-                writer.write(jsonObject.toString());
-                writer.flush();
+//                writer.write(jsonObject.toString());
+//                writer.flush();
                 int status = httpConn.getResponseCode();
                 if (status == HttpURLConnection.HTTP_OK) {
                         BufferedReader reader = new BufferedReader(new InputStreamReader(
